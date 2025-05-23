@@ -1,0 +1,10 @@
+import React, { useState } from "react";
+const initial = Array.from({length:16},(_,i)=>({slot:i+1,name:`Team ${i+1}`,placement:0,eliminated:false,players:Array.from({length:4},(_,j)=>({name:`Player ${j+1}`,kills:0,knocked:false,eliminated:false}))}));
+export default function TeamGridManualEntry(){
+  const [teams,setTeams]=useState(initial);
+  const toggle=(ti,pi,f)=>{let u=[...teams];u[ti].players[pi][f]=!u[ti].players[pi][f];setTeams(u);};
+  const changeKills=(ti,pi,d)=>{let u=[...teams];u[ti].players[pi].kills=Math.max(0,u[ti].players[pi].kills+d);setTeams(u);};
+  const elim=(ti)=>{let u=[...teams];let rem=u.filter(t=>!t.eliminated).length;u[ti].eliminated=true;u[ti].placement=rem;u[ti].players=u[ti].players.map(p=>({...p,eliminated:true}));setTeams(u);};
+  const color=t=>t.eliminated?"bg-red-800":t.placement===1?"bg-yellow-500":t.placement>1&&t.placement<=5?"bg-green-700":"bg-gray-800";
+  return <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">{teams.map((t,ti)=><div key={ti} className={`${color(t)} text-white rounded p-4`}><div className="flex justify-between items-center mb-2"><h2 className="font-semibold">{t.slot}. {t.name}{t.placement>0?` (#${t.placement})`:''}</h2><button onClick={()=>elim(ti)} className="bg-gray-600 px-2 py-1 rounded text-xs">TEAM ELIM</button></div>{t.players.map((p,pi)=><div key={pi} className="flex items-center justify-between bg-gray-700 p-2 rounded mb-2"><span>{p.name}</span><div className="flex items-center gap-1"><button onClick={()=>toggle(ti,pi,'knocked')} className={`px-2 py-1 rounded text-xs ${p.knocked?'bg-yellow-500':'bg-gray-600'}`}>Knock</button><button onClick={()=>toggle(ti,pi,'eliminated')} className={`px-2 py-1 rounded text-xs ${p.eliminated?'bg-red-500':'bg-gray-600'}`}>Elim</button><button onClick={()=>changeKills(ti,pi,-1)} className="px-2 rounded bg-gray-500">−</button><span>{p.kills}</span><button onClick={()=>changeKills(ti,pi,1)} className="px-2 rounded bg-gray-500">+</button></div></div>)} </div>)}</div>;
+}
